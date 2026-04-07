@@ -42,8 +42,20 @@ $global:CodeHome = 'D:\Code'
 
 # Claude Code account aliases
 # These must point to the claude CLI using the correct account
-function claude-work     { claude --account work @args }
-function claude-personal { claude --account personal @args }
+$ClaudePersonalConfig = "$HOME\.claude-personal"
+$ClaudeWorkConfig = "$HOME\.claude-work"
+
+function claude-personal {
+    $env:CLAUDE_CONFIG_DIR = $ClaudePersonalConfig
+    claude @args
+    Remove-Item Env:\CLAUDE_CONFIG_DIR -ErrorAction SilentlyContinue
+}
+
+function claude-work {
+    $env:CLAUDE_CONFIG_DIR = $ClaudeWorkConfig
+    claude @args
+    Remove-Item Env:\CLAUDE_CONFIG_DIR -ErrorAction SilentlyContinue
+}
 ```
 
 > `$global:CodeHome` is required. All project paths in the module are built relative to it, so the config works across machines without changes.
@@ -100,10 +112,10 @@ Setup-CalsAdTools     # No dev server pane (editor + shell only)
 
 Each command opens a tab with:
 
-| Pane | Content |
-|------|---------|
-| Left | Claude Code (resumes named session if it exists) |
-| Top-right | Interactive shell at the project directory |
+| Pane         | Content                                                      |
+| ------------ | ------------------------------------------------------------ |
+| Left         | Claude Code (resumes named session if it exists)             |
+| Top-right    | Interactive shell at the project directory                   |
 | Bottom-right | Dev server (`npm run dev` or `dotnet watch`) — if configured |
 
 ---
@@ -148,32 +160,32 @@ No further registration is needed — the barrel loader picks up any `.ps1` file
 
 ### Tab Colors (`$script:TabColor`)
 
-| Key | Color | Intended Use |
-|-----|-------|--------------|
-| `FrontEnd` | Blue `#5495f3` | JavaScript/TypeScript SPAs |
-| `BackEnd` | Green `#04774a` | APIs and server-side projects |
-| `DevOps` | Orange `#ff8c00` | Infrastructure, pipelines |
-| `Data` | Magenta `#c71585` | Data pipelines, databases |
-| `Neutral` | Gray `#5D5D5D` | Tooling, scripts, misc |
+| Key        | Color             | Intended Use                  |
+| ---------- | ----------------- | ----------------------------- |
+| `FrontEnd` | Blue `#5495f3`    | JavaScript/TypeScript SPAs    |
+| `BackEnd`  | Green `#04774a`   | APIs and server-side projects |
+| `DevOps`   | Orange `#ff8c00`  | Infrastructure, pipelines     |
+| `Data`     | Magenta `#c71585` | Data pipelines, databases     |
+| `Neutral`  | Gray `#5D5D5D`    | Tooling, scripts, misc        |
 
 ### Claude Accounts (`$script:ClaudeAccount`)
 
-| Key | Value |
-|-----|-------|
-| `Work` | `'work'` |
+| Key        | Value        |
+| ---------- | ------------ |
+| `Work`     | `'work'`     |
 | `Personal` | `'personal'` |
 
 ### `Invoke-AppDevSetup` Parameters
 
-| Parameter | Required | Description |
-|-----------|----------|-------------|
-| `-TabColor` | Yes | Hex color for the terminal tab (e.g. `'#FF6600'`) |
-| `-ClaudeAccount` | Yes | `'work'` or `'personal'` |
-| `-WorkingDirectory` | Yes | Full path to the project root |
-| `-ClaudeSession` | Yes | Session name to resume in Claude Code |
-| `-IncludeDevServerPane` | No | Switch — adds a third pane for the dev server |
-| `-DevServerCommand` | No | Command string to run in the dev server pane |
-| `-SplitPauseMs` | No | Delay (ms) between pane creation — default `500` |
+| Parameter               | Required | Description                                       |
+| ----------------------- | -------- | ------------------------------------------------- |
+| `-TabColor`             | Yes      | Hex color for the terminal tab (e.g. `'#FF6600'`) |
+| `-ClaudeAccount`        | Yes      | `'work'` or `'personal'`                          |
+| `-WorkingDirectory`     | Yes      | Full path to the project root                     |
+| `-ClaudeSession`        | Yes      | Session name to resume in Claude Code             |
+| `-IncludeDevServerPane` | No       | Switch — adds a third pane for the dev server     |
+| `-DevServerCommand`     | No       | Command string to run in the dev server pane      |
+| `-SplitPauseMs`         | No       | Delay (ms) between pane creation — default `500`  |
 
 ### Dev Server Helpers
 
